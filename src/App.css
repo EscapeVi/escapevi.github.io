@@ -1,5 +1,10 @@
+html, body, #root {
+  height: 100%
+}
+
 .App {
   text-align: center;
+  height: 100%;
 }
 
 .App-logo {
@@ -15,7 +20,7 @@
 
 .App-header {
   background-color: #282c34;
-  min-height: 100vh;
+  height: 30px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -24,15 +29,72 @@
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.Background {
+  background-color: #33334B;
+  height: calc(100% - 30px);
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.MainColumn {
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background-color: #33334B;
+  border-left: 1px solid #909090;
+  border-right: 1px solid #909090;
+  padding: 12px 20px;
+}
+
+.ControlPanel {
+  margin-bottom: 10px;
+}
+
+.ControlPanelButton {
+  margin-right: 10px;
+}
+
+.CurrentVolumesTitle {
+  color:#FFF;
+  margin: 0;
+  padding: 0;
+  align-self: flex-start;
+}
+
+.CurrentVolumes {
+  /* background-color: #68ac34; */
+  /* height: 200px; */
+  display: flex;
+  flex-direction: row;
+  padding: 10px 10px 40px 10px;
+}
+
+.ImageBackground {
+  width: 100px;
+  height: 100px;
+  background-color: #EEEEEE;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.CurrentVolumeImage {
+  width: 100px;
+  height: 100px;
+}
+
+.CurrentShapes {
+  padding-bottom: 10px;
+}
+
+.DroppedShapes {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.DroppedShape {
+  margin-bottom: 20px;
+  margin-top: 20px;
 }
