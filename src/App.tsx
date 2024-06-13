@@ -189,7 +189,7 @@ function renderKnightControls(
 
 function determineIsCorrect(shapes: TwoDSet, volumes: ThreeDSet) {
   return volumes.every((volume, i) => {
-    return Math.log2(volume - shapes[i]) % 1 !== 0 && volume !== shapes[i] * 2;
+    return Math.log2(volume - shapes[i]) % 1 !== 0 && Math.log2(volume / 2) % 1 !== 0;
   });
 }
 
