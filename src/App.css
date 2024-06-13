@@ -1,5 +1,6 @@
 html, body, #root {
-  height: 100%
+  height: 100%;
+  font-family: 'Verdana';
 }
 
 .App {
@@ -50,6 +51,7 @@ html, body, #root {
 
 .ControlPanel {
   margin-bottom: 10px;
+  color: #FFF;
 }
 
 .ControlPanelButton {
@@ -97,4 +99,14 @@ html, body, #root {
 .DroppedShape {
   margin-bottom: 20px;
   margin-top: 20px;
+}
+
+.LetterBackground {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.CalloutLetter {
+  font-size: 80px;
 }

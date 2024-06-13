@@ -27,6 +27,12 @@ const TwoDImages = {
   [TwoD.square]: imageSquare,
 }
 
+const TwoDLetters = {
+  [TwoD.circle]: 'C',
+  [TwoD.triangle]: 'T',
+  [TwoD.square]: 'S',
+}
+
 type TwoDSet = [TwoD, TwoD, TwoD];
 
 enum ThreeD {
@@ -93,26 +99,34 @@ function shuffleThreeD(shapes: TwoDSet|null): ThreeDSet {
 function renderMainControls(
   onReset: () => void,
   onResetAndRandomize: () => void,
+  isDisplayingLetters: boolean,
+  toggleLetters: () => void,
 ) {
   return <div className="ControlPanel">
     <button className="ControlPanelButton" onClick={onReset}>Reset</button>
     <button className="ControlPanelButton" onClick={onResetAndRandomize}>Reset & Randomize</button>
+    <label htmlFor="lettersToggle">Use Letters:</label>
+    <input id="lettersToggle" type="checkbox" checked={isDisplayingLetters} onChange={toggleLetters}/>
   </div>
 }
 
-function renderCurrentShapes(shapes: TwoDSet) {
+function renderCurrentShapes(shapes: TwoDSet, useLetters: boolean) {
+
+  const shapeImages = shapes.map((shape) => {
+    if (useLetters) {
+      return <div className="ImageBackground LetterBackground">
+      <p className="CalloutLetter">{TwoDLetters[shape]}</p>
+    </div>;
+    }
+    return <div className="ImageBackground CurrentShapeA">
+      <img src={TwoDImages[shape]} alt="CurrentShapeA" className="CurrentVolumeImage"/>
+    </div>;
+  });
+
   return <>
     <h2 className={"CurrentVolumesTitle"}>Shape Callouts</h2>
     <div className="CurrentVolumes CurrentShapes">
-      <div className="ImageBackground CurrentShapeA">
-        <img src={TwoDImages[shapes[0]]} alt="CurrentShapeA" className="CurrentVolumeImage"/>
-      </div>
-      <div className="ImageBackground CurrentShapeB">
-        <img src={TwoDImages[shapes[1]]} alt="CurrentShapeB" className="CurrentVolumeImage"/>
-      </div>
-      <div className="ImageBackground CurrentShapeC">
-        <img src={TwoDImages[shapes[2]]} alt="CurrentShapeC" className="CurrentVolumeImage"/>
-      </div>
+      {shapeImages}
     </div>
   </>;
 }
@@ -194,6 +208,7 @@ function determineIsCorrect(shapes: TwoDSet, volumes: ThreeDSet) {
 }
 
 function App() {
+  const [useLetters, setUseLetters] = useState<boolean>(false);
   const [shapes, setShapes] = useState<TwoDSet>(shuffleTwoD());
   const [initialVolumes, setInitialVolumes] = useState<ThreeDSet>(shuffleThreeD(shapes));
   const [volumes, setVolumes] = useState<ThreeDSet>(initialVolumes);
@@ -227,9 +242,12 @@ function App() {
               setVolumes(newVolumes);
               setShapes(newShapes);
               softReset();
-            })}
+            },
+            useLetters,
+            () => setUseLetters(!useLetters)
+          )}
           <div className="Readouts"></div>
-          {renderCurrentShapes(shapes)}
+          {renderCurrentShapes(shapes, useLetters)}
           {renderCurrentVolumes(
             volumes,
             shapes,
