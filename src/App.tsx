@@ -80,15 +80,16 @@ function threeDFromTwoD(a: TwoD, b: TwoD): ThreeD {
 
 // Create a set of 3D objects that collectively contain 2 of each 2D object
 function shuffleThreeD(shapes: TwoDSet|null): ThreeDSet {
-  let twoDArray = [TwoD.circle, TwoD.triangle, TwoD.square, TwoD.circle, TwoD.triangle, TwoD.square];
+  let twoDArray = [TwoD.circle, TwoD.triangle, TwoD.square];
   for (let i = twoDArray.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [twoDArray[i], twoDArray[j]] = [twoDArray[j], twoDArray[i]];
   }
+  const staticShapes = shapes || [TwoD.circle, TwoD.triangle, TwoD.square];
   const newThreeD: ThreeDSet = [
-    threeDFromTwoD(twoDArray[0], twoDArray[1]),
-    threeDFromTwoD(twoDArray[2], twoDArray[3]),
-    threeDFromTwoD(twoDArray[4], twoDArray[5]),
+    threeDFromTwoD(twoDArray[0], staticShapes[0]),
+    threeDFromTwoD(twoDArray[1], staticShapes[1]),
+    threeDFromTwoD(twoDArray[2], staticShapes[2]),
   ];
   if (shapes != null && determineIsCorrect(shapes, newThreeD)) {
     return shuffleThreeD(shapes);
@@ -192,11 +193,13 @@ function renderShapesDropped(shapes: [number, TwoD][], isHeld: boolean, pickUp: 
 
 function renderKnightControls(
   shapesNotDropped: TwoD[],
-  killKnight: () => void,
+  killKnight: (shape: TwoD) => void,
   killOgres: () => void,
 ) {
   return <div className="LowerControls">
-    <button className="ControlPanelButton" disabled={!shapesNotDropped.length} onClick={killKnight}>Kill Knight</button>
+    <button className="ControlPanelButton" disabled={!shapesNotDropped.includes(TwoD.circle)} onClick={() => killKnight(TwoD.circle)}>Kill Left Knight</button>
+    <button className="ControlPanelButton" disabled={!shapesNotDropped.includes(TwoD.triangle)} onClick={() => killKnight(TwoD.triangle)}>Kill Middle Knight</button>
+    <button className="ControlPanelButton" disabled={!shapesNotDropped.includes(TwoD.square)} onClick={() => killKnight(TwoD.square)}>Kill Right Knight</button>
     <button className="ControlPanelButton" disabled={!!shapesNotDropped.length} onClick={killOgres}>Kill Ogres</button>
   </div>;
 }
@@ -284,10 +287,9 @@ function App() {
           )}
           {renderKnightControls(
             shapesNotDropped,
-            () => {
-              const newShapesNotDropped = shapesNotDropped;
-              const newShapeDropped = newShapesNotDropped.pop() || TwoD.circle;
-              console.log('alpha10', newShapesNotDropped, newShapeDropped);
+            (newShapeDropped: TwoD) => {
+              let newShapesNotDropped = shapesNotDropped;
+              newShapesNotDropped = newShapesNotDropped.filter((notDropped) => notDropped != newShapeDropped);
               setShapesNotDropped(newShapesNotDropped);
               setShapesDropped([...shapesDropped, [Date.now(), newShapeDropped]])
             },
