@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/verity-simulator/static/css/main.f197008f.css",
-    "main.js": "/verity-simulator/static/js/main.f2756be2.js",
+    "main.css": "/verity-simulator/static/css/main.e7e21acc.css",
+    "main.js": "/verity-simulator/static/js/main.92ca8b83.js",
     "static/js/453.0fccc3b8.chunk.js": "/verity-simulator/static/js/453.0fccc3b8.chunk.js",
     "static/media/cone.png": "/verity-simulator/static/media/cone.ca1b92681e3eae51b172.png",
     "static/media/sphere.png": "/verity-simulator/static/media/sphere.cb1227ef91602e8ecd11.png",
@@ -10,12 +10,12 @@
     "static/media/cube.png": "/verity-simulator/static/media/cube.5b5e69b52678b9f7eac3.png",
     "static/media/cylinder.png": "/verity-simulator/static/media/cylinder.a99173765a23e7b94889.png",
     "index.html": "/verity-simulator/index.html",
-    "main.f197008f.css.map": "/verity-simulator/static/css/main.f197008f.css.map",
-    "main.f2756be2.js.map": "/verity-simulator/static/js/main.f2756be2.js.map",
+    "main.e7e21acc.css.map": "/verity-simulator/static/css/main.e7e21acc.css.map",
+    "main.92ca8b83.js.map": "/verity-simulator/static/js/main.92ca8b83.js.map",
     "453.0fccc3b8.chunk.js.map": "/verity-simulator/static/js/453.0fccc3b8.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.f197008f.css",
-    "static/js/main.f2756be2.js"
+    "static/css/main.e7e21acc.css",
+    "static/js/main.92ca8b83.js"
   ]
 }
