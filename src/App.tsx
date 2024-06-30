@@ -149,7 +149,7 @@ function renderCurrentVolumes(
   });
 
   const volumeImages = volumes.map((volume, i) => {
-    return <div className="ImageBackground CurrentVolumeA">
+    return <div className={`ImageBackground CurrentVolumeA ${dissected?.[0] === i ? 'Dissected' : ''}`}>
       <img src={ThreeDImages[volume]} alt="CurrentVolumeA" className="CurrentVolumeImage"/>
       <button disabled={!dissectAvailable[i]} onClick={() => dissect(i)}>Dissect</button>
     </div>
