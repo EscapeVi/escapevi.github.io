@@ -81,6 +81,10 @@ html, body, #root {
   margin-right: 10px;
 }
 
+.ImageBackground.Dissected {
+  background-color: #FFA500;
+}
+
 .CurrentVolumeImage {
   width: 100px;
   height: 100px;
