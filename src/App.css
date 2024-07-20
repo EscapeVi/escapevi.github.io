@@ -79,6 +79,11 @@ html, body, #root {
   background-color: #EEEEEE;
   margin-left: 10px;
   margin-right: 10px;
+  border: 3px solid transparent;
+}
+
+.Dissected {
+  border: 3px solid yellow;
 }
 
 .CurrentVolumeImage {
