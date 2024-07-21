@@ -259,7 +259,7 @@ function renderShapesDropped(shapes: [number, TwoD][], isHeld: boolean, pickUp: 
 
 function renderKnightControls(
   shapesNotDropped: TwoD[],
-  shapesDropped: TwoD[],
+  shapesDropped: [number, TwoD][],
   killKnight: (shape: TwoD) => void,
   killOgres: () => void,
 ) {
@@ -368,7 +368,7 @@ function App() {
             },
             (index: number) => {
               const newShapesDropped = [...shapesDropped];
-              const [pickedUpShape] = newShapesDropped.splice(index, 1);
+              newShapesDropped.splice(index, 1);
               setShapesDropped(newShapesDropped);
             }
           )}
@@ -377,7 +377,7 @@ function App() {
             shapesDropped,
             (newShapeDropped: TwoD) => {
               let newShapesNotDropped = shapesNotDropped;
-              newShapesNotDropped = newShapesNotDropped.filter((notDropped) => notDropped != newShapeDropped);
+              newShapesNotDropped = newShapesNotDropped.filter((notDropped) => notDropped !== newShapeDropped);
               setShapesNotDropped(newShapesNotDropped);
               setShapesDropped([...shapesDropped, [Date.now(), newShapeDropped]])
             },
