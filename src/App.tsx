@@ -14,6 +14,18 @@ import imagePrism from './shapes/prism.png';
 
 import { useState } from 'react';
 import React from 'react';
+import Select from 'react-select';
+
+enum Strategy {
+  mixed,
+  idealLeft,
+  idealRight,
+}
+
+type StrategyOption = {
+  value: Strategy,
+  label: String,
+}
 
 enum TwoD {
   circle = 1,
@@ -79,7 +91,7 @@ function threeDFromTwoD(a: TwoD, b: TwoD): ThreeD {
 }
 
 // Create a set of 3D objects that collectively contain 2 of each 2D object
-function shuffleThreeD(shapes: TwoDSet|null): ThreeDSet {
+function shuffleThreeD(shapes: TwoDSet|null, strategy: Strategy): ThreeDSet {
   let twoDArray = [TwoD.circle, TwoD.triangle, TwoD.square];
   for (let i = twoDArray.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -91,23 +103,75 @@ function shuffleThreeD(shapes: TwoDSet|null): ThreeDSet {
     threeDFromTwoD(twoDArray[1], staticShapes[1]),
     threeDFromTwoD(twoDArray[2], staticShapes[2]),
   ];
-  if (shapes != null && determineIsCorrect(shapes, newThreeD)) {
-    return shuffleThreeD(shapes);
+  if (shapes != null && determineIsCorrect(shapes, newThreeD, strategy)) {
+    return shuffleThreeD(shapes, strategy);
   }
   return newThreeD;
 }
+
+const strategyOptions: StrategyOption[] = [
+  { value: Strategy.mixed, label: 'Mixed Shapes (Standard Method)' },
+  { value: Strategy.idealLeft, label: 'Ideal Shapes, left shifted (Encounter Challenge)' },
+  { value: Strategy.idealRight, label: 'Ideal Shapes, right shifted (Encounter Challenge)' },
+];
+
+const customStyles = {
+  control: (provided, state) => ({
+    ...provided,
+    background: '#fff',
+    borderColor: '#9e9e9e',
+    minHeight: '30px',
+    height: '30px',
+    boxShadow: state.isFocused ? null : null,
+  }),
+
+  valueContainer: (provided, state) => ({
+    ...provided,
+    height: '30px',
+    padding: '0 6px 0 14px'
+  }),
+
+  input: (provided, state) => ({
+    ...provided,
+    margin: '0px',
+  }),
+  indicatorSeparator: state => ({
+    display: 'none',
+  }),
+  indicatorsContainer: (provided, state) => ({
+    ...provided,
+    height: '30px',
+  }),
+};
+
 
 function renderMainControls(
   onReset: () => void,
   onResetAndRandomize: () => void,
   isDisplayingLetters: boolean,
   toggleLetters: () => void,
+  strategy: StrategyOption,
+  setStrategy: (strategy: any) => void
 ) {
   return <div className="ControlPanel">
-    <button className="ControlPanelButton" onClick={onReset}>Reset</button>
-    <button className="ControlPanelButton" onClick={onResetAndRandomize}>Reset & Randomize</button>
-    <label htmlFor="lettersToggle">Use Letters:</label>
-    <input id="lettersToggle" type="checkbox" checked={isDisplayingLetters} onChange={toggleLetters}/>
+    <div className="Row">
+      <button className="ControlPanelButton" onClick={onReset}>Reset</button>
+      <button className="ControlPanelButton" onClick={onResetAndRandomize}>Reset & Randomize</button>
+      <label htmlFor="lettersToggle">Use Letters:</label>
+      <input id="lettersToggle" type="checkbox" checked={isDisplayingLetters} onChange={toggleLetters}/>
+    </div>
+    <div className="Row StrategyRow">
+      <label>
+        Strategy:
+      </label>
+      <Select
+          defaultValue={strategy}
+          onChange={setStrategy}
+          options={strategyOptions as any}
+          className={"SelectBox"}
+          styles={customStyles}
+        />
+    </div>
   </div>
 }
 
@@ -138,6 +202,7 @@ function renderCurrentVolumes(
   held: TwoD|null,
   dissected: [number, TwoD]|null,
   dissect: (index: number) => void,
+  strategy: Strategy,
 ) {
 
   const dissectAvailable: boolean[] = volumes.map((volume, i) => {
@@ -155,7 +220,7 @@ function renderCurrentVolumes(
     </div>
   });
 
-  const isCorrect = determineIsCorrect(shapes, volumes);
+  const isCorrect = determineIsCorrect(shapes, volumes, strategy);
 
   return <>
     <h2 className={"CurrentVolumesTitle"}>Held by Statues ({isCorrect ? 'Correct!' : 'Incorrect'})</h2>
@@ -174,12 +239,13 @@ function renderShapeHeld(shape: TwoD|null) {
   </>;
 }
 
-function renderShapesDropped(shapes: [number, TwoD][], isHeld: boolean, pickUp: (index: number) => void) {
+function renderShapesDropped(shapes: [number, TwoD][], isHeld: boolean, pickUp: (index: number) => void, letExpire: (index: number) => void) {
 
   const renderedShapes = shapes.map((shape, i) => {
     return <div className="ImageBackground DroppedShape">
       <img src={TwoDImages[shape[1]]} alt="CurrentShapeA" className="CurrentVolumeImage"/>
       <button onClick={() => pickUp(i)} disabled={isHeld}>Pick Up</button>
+      <button style={{marginLeft: 5}} onClick={() => letExpire(i)}>×</button>
     </div>;
   });
 
@@ -193,6 +259,7 @@ function renderShapesDropped(shapes: [number, TwoD][], isHeld: boolean, pickUp: 
 
 function renderKnightControls(
   shapesNotDropped: TwoD[],
+  shapesDropped: TwoD[],
   killKnight: (shape: TwoD) => void,
   killOgres: () => void,
 ) {
@@ -200,20 +267,32 @@ function renderKnightControls(
     <button className="ControlPanelButton" disabled={!shapesNotDropped.includes(TwoD.circle)} onClick={() => killKnight(TwoD.circle)}>Kill Left Knight</button>
     <button className="ControlPanelButton" disabled={!shapesNotDropped.includes(TwoD.triangle)} onClick={() => killKnight(TwoD.triangle)}>Kill Middle Knight</button>
     <button className="ControlPanelButton" disabled={!shapesNotDropped.includes(TwoD.square)} onClick={() => killKnight(TwoD.square)}>Kill Right Knight</button>
-    <button className="ControlPanelButton" disabled={!!shapesNotDropped.length} onClick={killOgres}>Kill Ogres</button>
+    <button className="ControlPanelButton" disabled={!!shapesDropped.length || !!shapesNotDropped.length} onClick={killOgres}>Kill Ogres</button>
   </div>;
 }
 
-function determineIsCorrect(shapes: TwoDSet, volumes: ThreeDSet) {
-  return volumes.every((volume, i) => {
-    return Math.log2(volume - shapes[i]) % 1 !== 0 && Math.log2(volume / 2) % 1 !== 0;
-  });
+function determineIsCorrect(shapes: TwoDSet, volumes: ThreeDSet, strategy: Strategy) {
+  if (strategy === Strategy.mixed) {
+    return volumes.every((volume, i) => {
+      return Math.log2(volume - shapes[i]) % 1 !== 0 && Math.log2(volume / 2) % 1 !== 0;
+    });
+  } else if (strategy === Strategy.idealLeft) {
+    return volumes.every((volume, i) => {
+      return volume === shapes[(i + 1) % 3] * 2;
+    });
+  } else if (strategy === Strategy.idealRight) {
+    return volumes.every((volume, i) => {
+      return volume === shapes[(i + 2) % 3] * 2;
+    });
+  }
 }
 
 function App() {
   const [useLetters, setUseLetters] = useState<boolean>(false);
+  const [strategy, setStrategy] = useState<StrategyOption>(strategyOptions[0]);
+
   const [shapes, setShapes] = useState<TwoDSet>(shuffleTwoD());
-  const [initialVolumes, setInitialVolumes] = useState<ThreeDSet>(shuffleThreeD(shapes));
+  const [initialVolumes, setInitialVolumes] = useState<ThreeDSet>(shuffleThreeD(shapes, strategy.value));
   const [volumes, setVolumes] = useState<ThreeDSet>(initialVolumes);
   const [currentlyHeld, setCurrentlyHeld] = useState<TwoD|null>(null);
   const [currentlyDissected, setCurrentlyDissected] = useState<[number, TwoD]|null>(null);
@@ -240,14 +319,16 @@ function App() {
             },
             () => {
               const newShapes = shuffleTwoD();
-              const newVolumes = shuffleThreeD(newShapes);
+              const newVolumes = shuffleThreeD(newShapes, strategy.value);
               setInitialVolumes(newVolumes);
               setVolumes(newVolumes);
               setShapes(newShapes);
               softReset();
             },
             useLetters,
-            () => setUseLetters(!useLetters)
+            () => setUseLetters(!useLetters),
+            strategy,
+            setStrategy,
           )}
           <div className="Readouts"></div>
           {renderCurrentShapes(shapes, useLetters)}
@@ -272,7 +353,8 @@ function App() {
               setVolumes(newVolumes);
               setCurrentlyDissected(null);
               setCurrentlyHeld(null);
-            }
+            },
+            strategy.value,
           )}
           {renderShapeHeld(currentlyHeld)}
           {renderShapesDropped(
@@ -283,10 +365,16 @@ function App() {
               const [pickedUpShape] = newShapesDropped.splice(index, 1);
               setCurrentlyHeld(pickedUpShape[1]);
               setShapesDropped(newShapesDropped);
+            },
+            (index: number) => {
+              const newShapesDropped = [...shapesDropped];
+              const [pickedUpShape] = newShapesDropped.splice(index, 1);
+              setShapesDropped(newShapesDropped);
             }
           )}
           {renderKnightControls(
             shapesNotDropped,
+            shapesDropped,
             (newShapeDropped: TwoD) => {
               let newShapesNotDropped = shapesNotDropped;
               newShapesNotDropped = newShapesNotDropped.filter((notDropped) => notDropped != newShapeDropped);
